@@ -1,2 +1,2 @@
-# Example
-An example greeter plugin
+# Artisan
+A virtual OSRS skill.
