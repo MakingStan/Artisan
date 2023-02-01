@@ -12,7 +12,7 @@ public interface ArtisanConfig extends Config
 		name = "Xp Drops",
 		description = "Enable or disable xp drops. "
 	)
-	default boolean xpDrops()
+	default boolean xpDropsEnabled()
 	{
 		return true;
 	}

@@ -5,6 +5,9 @@ import net.runelite.api.Model;
 import net.runelite.api.ModelData;
 import net.runelite.api.NpcID;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public enum MasterID {
     Genie,
     FreakyForester,
@@ -47,9 +50,10 @@ public enum MasterID {
 
     public Model toModel(Client client)
     {
-        Model returnModel = client.loadModel(4738);
+        //ModelData[] modelData = new ModelData[100]; // This just means a max of 100 modeldata pieces.
+        //int modelDataLength = 0;
         //Correlate the correct MasterID with the correct NpcID
-        switch(this)
+        /*switch(this)
         {
             case Genie:
                 returnModel = client.loadModel(4738);
@@ -74,7 +78,31 @@ public enum MasterID {
                 break;
         }
 
-        return returnModel;
+        modelData[0] = client.loadModelData(231);
+        modelData[1] = client.loadModelData(241);
+        modelData[2] = client.loadModelData(252);
+        modelData[3] = client.loadModelData(315);
+        modelData[4] = client.loadModelData(173);
+        modelData[5] = client.loadModelData(176);
+        modelData[6] = client.loadModelData(264);
+        modelData[7] = client.loadModelData(270);
+
+
+
+        modelDataLength = 7;
+        */
+
+
+        //get the model
+        int[] ids = client.getNpcDefinition(this.toNpcID()).getModels();
+        ModelData[] modelData = new ModelData[ids.length];
+        for(int i = 0; i < ids.length; i++)
+        {
+            modelData[i] = client.loadModelData(ids[i]);
+        }
+
+        ModelData combinedModelData = client.mergeModels(modelData, ids.length);
+        return combinedModelData.light();
     }
 }
 

@@ -26,6 +26,7 @@ import org.makingstan.ui.xpdrops.XPDropOverlay;
 import org.makingstan.ui.xpdrops.XPOverlay;
 import org.makingstan.vnpcs.Master;
 import org.makingstan.vnpcs.MasterID;
+import org.makingstan.vnpcs.Player;
 
 import java.awt.image.BufferedImage;
 
@@ -106,8 +107,12 @@ public class ArtisanPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick e)
 	{
-		xpDrop(100);
+		if(config.xpDropsEnabled())
+		{
+			xpDrop(100);
+		}
 	}
+
 
 	private void xpDrop(int amount)
 	{
@@ -117,9 +122,11 @@ public class ArtisanPlugin extends Plugin
 	@Subscribe
 	private void onCommandExecuted(CommandExecuted e)
 	{
-		if(e.getCommand().equalsIgnoreCase("spawnGenie"))
+		if(e.getCommand().equalsIgnoreCase("spawn"))
 		{
-			Master genie = new Master(MasterID.Genie, fakeDialogInputProvider, client);
+			Master spawner = new Master(MasterID.FreakyForester, fakeDialogInputProvider, client);
+
+			spawner.spawnModel();
 		}
 		if (e.getCommand().equalsIgnoreCase("genie"))
 		{
@@ -147,14 +154,17 @@ public class ArtisanPlugin extends Plugin
 			genie.concatCharacter(alryTheAngler);
 
 			genie.putTalk("Hey hey Alry, your going too fast! Let me clarify what Artisan points are!");
-			genie.putTalk("Artisan points are points that you gain after completing an Artisan task. Artisan points (similair to slayer points) can be used to learn new things from Artisan masters.");
-			genie.putTalk("Artisan masters have a base knowledge and specialize into things. You can learn specific things only from one master and not from another, but you can learn the base knowledge from all of them.");
+			genie.putTalk("Artisan points are points that you gain after completing an Artisan task.");
+			genie.putTalk("Artisan points (similair to slayer points) can be used to learn new things from Artisan masters.");
+			genie.putTalk("Artisan masters have a base knowledge and specialize into things.");
+			genie.putTalk("You can learn specific things only from one master and not from another, but you can learn the base knowledge from all of them.");
 			genie.putTalk("For example: Alry The Angler can teach you how to block certain Artisan tasks.");
 			genie.putTalk("Now it's time for our wise Artisan masters to talk!");
 
 			Master alecKincade = new Master(MasterID.AlecKincade, fakeDialogInputProvider);
 			alecKincade.putTalk("Hey hey, I'm Alec Kincade.");
-			alecKincade.putTalk("I like to give profitable tasks, I want to help someone make money and buy new gear. For me to have flexibility, you will have to have a base level of 70 in all gathering and utility skills!");
+			alecKincade.putTalk("I like to give profitable tasks, I want to help someone make money and buy new gear. ");
+			alecKincade.putTalk("For me to have flexibility in giving you tasks, you will have to have a base level of 70 in all gathering and utility skills!");
 			alecKincade.putTalk("Gathering skills include: Mining, woodcutting, hunting, fishing and utility skills include thieving and agility.");
 			alecKincade.putTalk("Aye, my introduction time is over, now you are going to meet Angelo, angelo is the TOP master of Artisan!");
 			genie.concatCharacter(alecKincade);
@@ -164,12 +174,16 @@ public class ArtisanPlugin extends Plugin
 			angelo.putTalk("I'm Angelo, some call me the TOP master of Artisan, I usually deny that statement though.");
 			angelo.putTalk("I like to give tasks to the liking of the player, at an expense of their points though.");
 			angelo.putTalk("This means that you can spend your Artisan points at my rewards shop to customize your tasks!");
-			angelo.putTalk("That's about it for my introduction, OH WAIT I almost forgot... If you ever become a master of Artisan, you can get your cape by contacting me!");
-			genie.concatMaster(angelo);
+			angelo.putTalk("OH WAIT I almost forgot... If you ever become a master of Artisan, you can get your cape by contacting me!");
+			genie.concatCharacter(angelo);
 
-			genie.putTalk("That's about it, we all welcome you to the world of Artisan. Feel free to contact me if you have any questions!");
+			genie.putTalk("That's about it, we all welcome you to the world of Artisan.");
+			genie.putTalk("Feel free to contact me if you have any questions!");
 			genie.putTalk("Choose the master to your likings! I wish you the best of luck!");
 
+			Player player = new org.makingstan.vnpcs.Player(this.fakeDialogInputProvider);
+			player.putTalk("Thank you!");
+			genie.concatCharacter(player);
 
 
 			genie.startTalk();

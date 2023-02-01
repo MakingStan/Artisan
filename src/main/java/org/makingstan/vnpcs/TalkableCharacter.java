@@ -16,13 +16,8 @@ public interface TalkableCharacter {
     public void putTalk(String messageContent);
     public void startTalk();
 
-    public default ArrayList<FakeDialogInput> getDialogStack()
-    {
-        return dialogStack;
-    }
+    public ArrayList<FakeDialogInput> getDialogStack();
 
-    public default void concatCharacter(TalkableCharacter character)
-    {
-        dialogStack.addAll(character.getDialogStack());
-    }
+
+    public void concatCharacter(TalkableCharacter character);
 }

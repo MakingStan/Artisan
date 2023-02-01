@@ -14,15 +14,15 @@ public class Player implements TalkableCharacter {
 
     private ArrayList<FakeDialogInput> dialogStack = new ArrayList<>();
 
-    public Player()
+    public Player(Provider<FakeDialogInput> fakeDialogInputProvider)
     {
-
+        this.fakeDialogInputProvider = fakeDialogInputProvider;
     }
     @Override
     public void putTalk(String messageContent)
     {
         FakeDialogInput dialog = fakeDialogInputProvider.get()
-                .type(DialogType.DIALOG_HEAD_LEFT)
+                .type(DialogType.DIALOG_HEAD_RIGHT)
                 .player()
                 .message(messageContent );
 
@@ -41,5 +41,15 @@ public class Player implements TalkableCharacter {
         }
 
         dialogStack.get(0).build();
+    }
+
+    @Override
+    public ArrayList<FakeDialogInput> getDialogStack() {
+        return this.dialogStack;
+    }
+
+    @Override
+    public void concatCharacter(TalkableCharacter character) {
+        this.dialogStack.addAll(character.getDialogStack());
     }
 }
