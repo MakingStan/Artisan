@@ -7,11 +7,13 @@ import javax.inject.Provider;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
-import net.runelite.api.events.CommandExecuted;
-import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.GameTick;
+import net.runelite.api.events.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.chat.ChatColorType;
+import net.runelite.client.chat.ChatMessageBuilder;
+import net.runelite.client.chat.ChatMessageManager;
+import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -55,8 +57,13 @@ public class ArtisanPlugin extends Plugin
 	@Inject
 	private Provider<FakeDialogInput> fakeDialogInputProvider;
 
+	@Inject
+	ChatMessageManager chatMessageManager;
+
 	XPOverlay xpOverlay;
 	XPDropOverlay xpDropOverlay;
+
+	Master spawner;
 
 	@Override
 	protected void startUp() throws Exception
@@ -125,7 +132,7 @@ public class ArtisanPlugin extends Plugin
 		if(e.getCommand().equalsIgnoreCase("spawn"))
 		{
 			Master spawner = new Master(MasterID.FreakyForester, fakeDialogInputProvider, client);
-
+			this.spawner = spawner;
 			spawner.spawnModel();
 		}
 		if (e.getCommand().equalsIgnoreCase("genie"))
@@ -188,6 +195,36 @@ public class ArtisanPlugin extends Plugin
 
 			genie.startTalk();
 		}
+	}
+
+	@Subscribe
+	public void onMenuEntryAdded(MenuEntryAdded event) {
+		int widgetIndex = event.getActionParam0();
+		int widgetID = event.getActionParam1();
+		MenuEntry[] menuEntries = client.getMenuEntries();
+
+		if (spawner != null && spawner.masterRuneliteObject!= null && spawner.masterRuneliteObject.getModel() != null &&
+				event.getOption().equals("Walk here"))
+		{
+			spawner.addActions(menuEntries, widgetIndex, widgetID);
+		}
+
+	}
+	@Subscribe
+	private void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		// Ignore all menu clicked requests that don't come from runelite.
+		if (event.getMenuAction() != MenuAction.RUNELITE)
+		{
+			return;
+		}
+
+		if (event.getMenuOption().equalsIgnoreCase("Examine") && event.getMenuTarget().equals("<col=ffff00>" + this.spawner.displayName + "</col>"))
+		{
+			client.addChatMessage(ChatMessageType.NPC_EXAMINE, this.spawner.displayName, this.spawner.getExamine(), "");
+			event.consume();
+		}
+
 	}
 
 	@Provides

@@ -3,20 +3,25 @@ package org.makingstan.vnpcs;
 import lombok.Getter;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
-import org.makingstan.JebScapeActor;
+import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.client.eventbus.Subscribe;
 import org.makingstan.ui.DialogType;
 import org.makingstan.ui.FakeDialogInput;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 // RuneliteObject code yoinked from: https://github.com/Zoinkwiz/quest-helper/blob/master/src/main/java/com/questhelper/Cheerer.java
 public class Master implements TalkableCharacter {
     private int npcID;
-    private RuneLiteObject masterRuneliteObject;
+    public RuneLiteObject masterRuneliteObject;
+    public String displayName;
     private Client client;
+    private LocalPoint localPoint;
+    private String examineText;
 
     @Getter
     public boolean onlyTalkable = false;
@@ -30,6 +35,8 @@ public class Master implements TalkableCharacter {
     {
         this.fakeDialogInputProvider = fakeDialogInputProvider;
         this.npcID = masterID.toNpcID();
+        this.displayName = client.getNpcDefinition(this.npcID).getName();
+        this.examineText = masterID.getExamineText();
         this.client = client;
 
         this.masterRuneliteObject = client.createRuneLiteObject();
@@ -56,10 +63,41 @@ public class Master implements TalkableCharacter {
         {
             LocalPoint lp = client.getLocalPlayer().getLocalLocation();
             this.masterRuneliteObject.setLocation(new LocalPoint(lp.getX() + 128, lp.getY()), client.getPlane());
-
+            this.localPoint = this.masterRuneliteObject.getLocation();
             this.masterRuneliteObject.setActive(true);
         }
     }
+
+    public String getExamine()
+    {
+        return this.examineText;
+    }
+
+
+    /* In this function we handle adding the options to the masters */
+    public MenuEntry[] addActions(MenuEntry[] menuEntries, int widgetIndex, int widgetID)
+    {
+        if (localPoint == null) return menuEntries;
+
+        Point p = Perspective.localToCanvas(client, localPoint, client.getPlane(),
+                this.masterRuneliteObject.getModelHeight() / 2);
+        if (p == null) return menuEntries;
+
+
+        if (p.distanceTo(client.getMouseCanvasPosition()) > 100) return menuEntries;
+
+        menuEntries = Arrays.copyOf(menuEntries, menuEntries.length + 1);
+
+        client.createMenuEntry(menuEntries.length-1)
+                .setOption("Examine")
+                .setTarget("<col=ffff00>"+this.displayName+"</col>")
+                .setType(MenuAction.RUNELITE)
+                .setParam0(widgetIndex)
+                .setParam1(widgetID);
+
+        return menuEntries;
+    }
+
 
 
 
